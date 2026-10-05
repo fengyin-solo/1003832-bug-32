@@ -1,4 +1,11 @@
 import type { EntryRow } from './types'
+import {
+  SEED_BONE_BATCHES,
+  SEED_BONE_MANUAL,
+  SEED_BONE_REVIEWS,
+  SEED_STORAGE_INTAKES,
+  SEED_STORAGE_LEDGER,
+} from './bone-seed'
 
 // 示例数据：首次打开时播种，之后浏览器里的改动优先，重置才会回到这份。
 export const SEED_ROWS: Record<string, EntryRow[]> = {
@@ -489,45 +496,87 @@ export const SEED_ROWS: Record<string, EntryRow[]> = {
   "animal_bone": [
     {
       "id": 1,
-      "status": "已采集",
-      "pending": true,
+      "status": "已复核",
+      "pending": false,
       "abnormal": false,
       "标本编号": "ANIM-0001",
-      "出土单位": "动物骨骼样例1",
-      "种属判定": "动物骨骼样例1",
-      "骨骼部位": "动物骨骼样例1",
-      "数量统计": 10,
-      "最小个体数": "动物骨骼样例1",
-      "鉴定人": "动物骨骼样例1",
-      "鉴定状态": "动物骨骼样例1"
+      "出土单位": "H08①",
+      "种属判定": "家猪",
+      "骨骼部位": "下颌骨",
+      "数量统计": 12,
+      "最小个体数": 2,
+      "鉴定人": "刘鉴定",
+      "鉴定状态": "已复核"
     },
     {
       "id": 2,
-      "status": "鉴定中",
-      "pending": true,
-      "abnormal": true,
+      "status": "已复核",
+      "pending": false,
+      "abnormal": false,
       "标本编号": "ANIM-0002",
-      "出土单位": "动物骨骼样例2",
-      "种属判定": "动物骨骼样例2",
-      "骨骼部位": "动物骨骼样例2",
-      "数量统计": 20,
-      "最小个体数": "动物骨骼样例2",
-      "鉴定人": "动物骨骼样例2",
-      "鉴定状态": "动物骨骼样例2"
+      "出土单位": "H08①",
+      "种属判定": "黄牛",
+      "骨骼部位": "肩胛骨",
+      "数量统计": 6,
+      "最小个体数": 1,
+      "鉴定人": "刘鉴定",
+      "鉴定状态": "已复核"
     },
     {
       "id": 3,
-      "status": "已鉴定",
+      "status": "已复核",
       "pending": false,
       "abnormal": false,
       "标本编号": "ANIM-0003",
-      "出土单位": "动物骨骼样例3",
-      "种属判定": "动物骨骼样例3",
-      "骨骼部位": "动物骨骼样例3",
-      "数量统计": 30,
-      "最小个体数": "动物骨骼样例3",
-      "鉴定人": "动物骨骼样例3",
-      "鉴定状态": "动物骨骼样例3"
+      "出土单位": "H12③",
+      "种属判定": "绵羊",
+      "骨骼部位": "胫骨",
+      "数量统计": 9,
+      "最小个体数": 2,
+      "鉴定人": "刘鉴定",
+      "鉴定状态": "已复核"
+    },
+    {
+      "id": 4,
+      "status": "已鉴定",
+      "pending": true,
+      "abnormal": false,
+      "标本编号": "ANIM-0004",
+      "出土单位": "H15②",
+      "种属判定": "家鸡",
+      "骨骼部位": "股骨",
+      "数量统计": 4,
+      "最小个体数": 1,
+      "鉴定人": "刘鉴定",
+      "鉴定状态": "已鉴定"
+    },
+    {
+      "id": 5,
+      "status": "已鉴定",
+      "pending": true,
+      "abnormal": false,
+      "标本编号": "ANIM-0005",
+      "出土单位": "H15②",
+      "种属判定": "狗",
+      "骨骼部位": "肱骨",
+      "数量统计": 3,
+      "最小个体数": 1,
+      "鉴定人": "刘鉴定",
+      "鉴定状态": "已鉴定"
+    },
+    {
+      "id": 6,
+      "status": "已鉴定",
+      "pending": true,
+      "abnormal": false,
+      "标本编号": "ANIM-0006",
+      "出土单位": "H18④",
+      "种属判定": "梅花鹿",
+      "骨骼部位": "角枝",
+      "数量统计": 2,
+      "最小个体数": 1,
+      "鉴定人": "刘鉴定",
+      "鉴定状态": "已鉴定"
     }
   ],
   "pottery": [
@@ -794,4 +843,10 @@ export const SEED_ROWS: Record<string, EntryRow[]> = {
       "记录状态": "工地接待样例3"
     }
   ],
+  // 鉴定域与库房派生表：结构见 bone-types.ts，页面与库房统一从这些表取数。
+  "bone_batch": SEED_BONE_BATCHES as unknown as EntryRow[],
+  "bone_manual": SEED_BONE_MANUAL as unknown as EntryRow[],
+  "bone_review": SEED_BONE_REVIEWS as unknown as EntryRow[],
+  "storage_intake": SEED_STORAGE_INTAKES as unknown as EntryRow[],
+  "storage_ledger": SEED_STORAGE_LEDGER as unknown as EntryRow[],
 }
