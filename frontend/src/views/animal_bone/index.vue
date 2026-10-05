@@ -67,6 +67,72 @@
       <span>共 {{ total }} 条动物骨骼记录</span>
       <span v-if="errorMessage" class="error-text">{{ errorMessage }}</span>
     </footer>
+
+    <section class="sub-panel">
+      <h3 class="sub-title">鉴定批次</h3>
+      <p class="sub-desc">提交鉴定即生成批次；同一标本只认第一次有效结论，重复提交会被拒绝。</p>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>批次号</th>
+            <th>提交时间</th>
+            <th>提交人</th>
+            <th>批次状态</th>
+            <th>可执行动作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="batch in batches" :key="String(batch.id)">
+            <td>{{ batch['批次号'] }}</td>
+            <td>{{ batch['提交时间'] }}</td>
+            <td>{{ batch['提交人'] }}</td>
+            <td>{{ batch.status }}</td>
+            <td class="row-actions">
+              <button
+                v-if="batch.status === '待复核'"
+                class="link"
+                type="button"
+                @click="reviewWholeBatch(batch)"
+              >
+                复核鉴定
+              </button>
+              <span v-else>—</span>
+            </td>
+          </tr>
+          <tr v-if="!batches.length">
+            <td colspan="5" class="empty-state">暂无鉴定批次，提交鉴定后自动生成</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="sub-panel">
+      <h3 class="sub-title">复核记录</h3>
+      <p class="sub-desc">与库房待入藏事项共用同一鉴定批次口径：一件标本只写一条，结论以复核时采用值为准。</p>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>标本编号</th>
+            <th>种属判定</th>
+            <th>结论来源</th>
+            <th>批次号</th>
+            <th>复核时间</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="review in reviews" :key="String(review.id)">
+            <td>{{ review['标本编号'] }}</td>
+            <td>{{ review['种属判定'] }}</td>
+            <td>{{ review['结论来源'] }}</td>
+            <td>{{ review['批次号'] }}</td>
+            <td>{{ review['复核时间'] }}</td>
+          </tr>
+          <tr v-if="!reviews.length">
+            <td colspan="5" class="empty-state">暂无复核记录，复核鉴定后生成</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
   </section>
 </template>
 
@@ -79,6 +145,7 @@ import {
   moduleMeta,
   runAction as applyAction,
 } from '@/api/local-service'
+import { listBatches, listReviews, reviewBatch } from '@/api/identification'
 import type { EntryRow } from '@/data/types'
 
 const meta = moduleMeta('animal_bone')
@@ -91,6 +158,8 @@ const rows = ref<EntryRow[]>([])
 const total = ref(0)
 const errorMessage = ref('')
 const filters = ref<Record<string, string>>({})
+const batches = ref<EntryRow[]>([])
+const reviews = ref<EntryRow[]>([])
 const filterFields = columns.slice(0, 3)
 const statusSummary = computed(() =>
   statuses.map((status: string) => ({
@@ -122,12 +191,24 @@ function runAction(action: string, row: EntryRow) {
   reload()
 }
 
+function reviewWholeBatch(batch: EntryRow) {
+  errorMessage.value = ''
+  const result = reviewBatch(Number(batch.id))
+  if (!result.ok) {
+    errorMessage.value = result.message
+    return
+  }
+  reload()
+}
+
 function reload() {
   errorMessage.value = ''
   try {
     const payload = listEntries(meta.key, filters.value)
     rows.value = payload.items
     total.value = payload.total
+    batches.value = listBatches()
+    reviews.value = listReviews()
   } catch (error) {
     errorMessage.value = error instanceof Error ? error.message : '动物骨骼列表读取失败'
   }

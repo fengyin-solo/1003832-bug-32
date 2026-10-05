@@ -68,4 +68,9 @@ npm run build
 - 字段、状态、动作与流转目标集中在 `frontend/src/data/modules.ts`；示例数据在
   `frontend/src/data/seed.ts`。
 - 状态流转只允许在 `local-service.ts` 里改，页面组件不做业务判断。
+- 动物骨骼的「提交鉴定 / 复核鉴定」不走通用状态流转，统一由 `frontend/src/api/identification.ts`
+  处理：鉴定批次 → 单件提交 → 复核写入 → 库房待入藏事项在一条事务里落库（事务原语见
+  `local-store.ts` 的 `transact`）。同一标本重复提交会被拒绝且不改动种属判定；批次内外结论冲突时
+  人工单件结论优先；复核写入失败整批回滚，不留半份记录。动物骨骼列表页与库房页的待入藏事项
+  共用这一份取数口径。
 - 想回到初始数据：清掉浏览器里 `field-archaeology-digital:entries` 这一项，或调用 `resetModule(模块)`。

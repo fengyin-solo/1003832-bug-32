@@ -530,6 +530,10 @@ export const SEED_ROWS: Record<string, EntryRow[]> = {
       "鉴定状态": "动物骨骼样例3"
     }
   ],
+  "animal_bone_batch": [],
+  "animal_bone_batch_item": [],
+  "animal_bone_review": [],
+  "storage_intake": [],
   "pottery": [
     {
       "id": 1,

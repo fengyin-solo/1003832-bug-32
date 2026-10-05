@@ -1,3 +1,4 @@
+import { reviewBatchForSpecimen, submitIdentification } from '@/api/identification'
 import { MODULE_BY_KEY } from '@/data/modules'
 import { allRows, listRows, resetRows, saveRows } from '@/data/local-store'
 import type { ActionResult, EntryRow, ModuleMeta, OverviewResult, PageResult } from '@/data/types'
@@ -33,6 +34,13 @@ export function runAction(key: string, id: number, action: string): ActionResult
   const target = meta.actionTargets[action]
   if (!target) {
     return { ok: false, message: `${meta.entity}没有登记「${action}」这个动作` }
+  }
+  // 动物骨骼的提交/复核必须走鉴定批次工作流：重复提交拒绝、复核原子写入，不能从通用流转绕过。
+  if (key === 'animal_bone' && action === '提交鉴定') {
+    return submitIdentification(id)
+  }
+  if (key === 'animal_bone' && action === '复核鉴定') {
+    return reviewBatchForSpecimen(id)
   }
   const rows = listRows(key)
   const index = rows.findIndex((row) => Number(row.id) === id)

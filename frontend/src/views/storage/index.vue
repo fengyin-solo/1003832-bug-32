@@ -67,6 +67,48 @@
       <span>共 {{ total }} 条库房管理记录</span>
       <span v-if="errorMessage" class="error-text">{{ errorMessage }}</span>
     </footer>
+
+    <section class="sub-panel">
+      <h3 class="sub-title">待入藏事项</h3>
+      <p class="sub-desc">来自动物骨骼复核结果，按复核当时的结论快照保留，与动物骨骼列表共用同一鉴定批次口径。</p>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>标本编号</th>
+            <th>种属判定（复核时）</th>
+            <th>复核编号</th>
+            <th>来源模块</th>
+            <th>创建时间</th>
+            <th>当前状态</th>
+            <th>可执行动作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="item in intakes" :key="String(item.id)">
+            <td>{{ item['标本编号'] }}</td>
+            <td>{{ item['种属判定'] }}</td>
+            <td>{{ item['复核编号'] }}</td>
+            <td>{{ item['来源模块'] }}</td>
+            <td>{{ item['创建时间'] }}</td>
+            <td>{{ item.status }}</td>
+            <td class="row-actions">
+              <button
+                v-if="item.status === '待入藏'"
+                class="link"
+                type="button"
+                @click="confirm(item)"
+              >
+                确认入藏
+              </button>
+              <span v-else>—</span>
+            </td>
+          </tr>
+          <tr v-if="!intakes.length">
+            <td colspan="7" class="empty-state">暂无待入藏事项，动物骨骼复核通过后生成</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
   </section>
 </template>
 
@@ -79,6 +121,7 @@ import {
   moduleMeta,
   runAction as applyAction,
 } from '@/api/local-service'
+import { confirmIntake, listStorageIntakes } from '@/api/identification'
 import type { EntryRow } from '@/data/types'
 
 const meta = moduleMeta('storage')
@@ -91,6 +134,7 @@ const rows = ref<EntryRow[]>([])
 const total = ref(0)
 const errorMessage = ref('')
 const filters = ref<Record<string, string>>({})
+const intakes = ref<EntryRow[]>([])
 const filterFields = columns.slice(0, 3)
 const statusSummary = computed(() =>
   statuses.map((status: string) => ({
@@ -122,12 +166,23 @@ function runAction(action: string, row: EntryRow) {
   reload()
 }
 
+function confirm(item: EntryRow) {
+  errorMessage.value = ''
+  const result = confirmIntake(Number(item.id))
+  if (!result.ok) {
+    errorMessage.value = result.message
+    return
+  }
+  reload()
+}
+
 function reload() {
   errorMessage.value = ''
   try {
     const payload = listEntries(meta.key, filters.value)
     rows.value = payload.items
     total.value = payload.total
+    intakes.value = listStorageIntakes()
   } catch (error) {
     errorMessage.value = error instanceof Error ? error.message : '库房管理列表读取失败'
   }
